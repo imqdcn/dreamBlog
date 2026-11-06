@@ -1,0 +1,62 @@
+# 自托管编排：Postgres + Strapi + MCP Server
+# 用法：复制 .env.example 为 .env 并填值，然后 docker compose up -d --build
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-dream_blog}
+      POSTGRES_USER: ${DATABASE_USERNAME:-strapi}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-strapi}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DATABASE_USERNAME:-strapi}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      HOST: 0.0.0.0
+      PORT: 1337
+      APP_KEYS: ${APP_KEYS}
+      API_TOKEN_SALT: ${API_TOKEN_SALT}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+      JWT_SECRET: ${JWT_SECRET}
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${DATABASE_NAME:-dream_blog}
+      DATABASE_USERNAME: ${DATABASE_USERNAME:-strapi}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-strapi}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+    volumes:
+      - uploads:/app/public/uploads
+    ports:
+      - '1337:1337'
+
+  mcp-server:
+    build: ./mcp-server
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      MCP_ENDPOINT: ${MCP_ENDPOINT}
+      STRAPI_URL: http://backend:1337
+      STRAPI_TOKEN: ${STRAPI_TOKEN}
+      LLM_ENABLED: ${LLM_ENABLED:-true}
+      LLM_BASE_URL: ${LLM_BASE_URL}
+      LLM_API_KEY: ${LLM_API_KEY}
+      LLM_MODEL: ${LLM_MODEL}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+
+volumes:
+  pgdata:
+  uploads:

@@ -1,0 +1,72 @@
+{
+  "kind": "collectionType",
+  "collectionName": "dreams",
+  "info": {
+    "singularName": "dream",
+    "pluralName": "dreams",
+    "displayName": "Dream",
+    "description": "梦境记录：原始口述内容及 LLM 加工后的结构化字段"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "rawContent": {
+      "type": "text",
+      "required": true,
+      "description": "原始口述的梦境内容"
+    },
+    "title": {
+      "type": "string",
+      "description": "LLM 生成的标题"
+    },
+    "summary": {
+      "type": "text",
+      "description": "LLM 生成的摘要"
+    },
+    "keywords": {
+      "type": "json",
+      "description": "LLM 提取的关键词数组"
+    },
+    "emotion": {
+      "type": "enumeration",
+      "enum": [
+        "joyful",
+        "peaceful",
+        "neutral",
+        "anxious",
+        "fearful",
+        "sad",
+        "bizarre"
+      ],
+      "description": "主导情绪：愉悦/平静/中性/焦虑/恐惧/悲伤/离奇"
+    },
+    "emotionScore": {
+      "type": "decimal",
+      "min": -1,
+      "max": 1,
+      "description": "情绪倾向打分，-1 最消极，1 最积极"
+    },
+    "clarity": {
+      "type": "integer",
+      "min": 1,
+      "max": 5,
+      "description": "梦境清晰度，1 模糊 ~ 5 清晰"
+    },
+    "dreamedAt": {
+      "type": "datetime",
+      "description": "做梦/记录发生的时间"
+    },
+    "aiProcessed": {
+      "type": "boolean",
+      "default": false,
+      "description": "是否已成功经过 LLM 加工"
+    },
+    "source": {
+      "type": "string",
+      "default": "xiaozhi",
+      "description": "记录来源，默认来自小智语音"
+    }
+  }
+}
