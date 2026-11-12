@@ -22,7 +22,35 @@
 | --- | --- | --- | --- |
 | Strapi CMS | [`backend/`](./backend) | 梦境数据模型、REST API、API Token 鉴权 | 自托管云服务器 |
 | MCP Server | [`mcp-server/`](./mcp-server) | WS 客户端连官方接入点，`record_dream` 工具 + LLM 加工 | 自托管云服务器 |
-| Nuxt 前端 | [`frontend/`](./frontend) | 日记流 + 统计可视化 | GitHub Pages / Vercel |
+| Studio Service | [`studio-service/`](./studio-service) | 梦境小屋：Owner 登录、梦境写入、故事生成、Dream_Agent（独占服务端密钥） | 自托管云服务器 |
+| Nuxt 前端 | [`frontend/`](./frontend) | 日记流 + 统计可视化 + 梦境小屋页面 | GitHub Pages / Vercel |
+
+### 组件边界与密钥
+
+Studio Service 是唯一持有 Write_Token、LLM 密钥、Owner 口令与会话密钥的新增组件（变量均以 `STUDIO_` 开头，见根 `.env.example` 的 Studio 块）。Frontend 只配置公开的 `NUXT_PUBLIC_STUDIO_URL`，Backend 不含任何 Studio 密钥；CI 通过 `scripts/check-secret-boundary.mjs` 保证这一点。详情见 [`studio-service/README.md`](./studio-service/README.md)。
+
+### Studio Token 创建（`setup-access`）
+
+```bash
+cd backend
+node ./scripts/setup-access.js
+```
+
+脚本会创建最小权限的 `studio-service-write` Token（明文仅首次可见），填入 `STUDIO_STRAPI_TOKEN`。
+
+### Agent 评估命令
+
+```bash
+cd studio-service
+npm run eval:offline   # 脚本化 LLM，零费用
+npm run eval           # 真实 LLM
+```
+
+### Studio 部署注意与残余风险
+
+- Frontend 在 GitHub Pages（HTTPS）时，Studio Service 必须经 HTTPS 暴露，否则浏览器会拦截混合内容；同时 `CORS_ORIGIN` 需包含前端来源，CI 变量 `NUXT_PUBLIC_STUDIO_URL` 指向其 HTTPS 地址。
+- 收到 `SIGTERM` 时服务会取消运行中的 Run、排空加工队列后退出。
+- 会话限流、Run 进度与加工队列均在内存中，重启后丢失（进行中的 Run 需重新发起）；请勿运行多副本。
 
 ## 本地启动
 

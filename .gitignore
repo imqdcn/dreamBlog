@@ -41,3 +41,4 @@ logs/
 # 编辑器
 .idea/
 *.swp
+.aider*

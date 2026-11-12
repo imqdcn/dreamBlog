@@ -35,13 +35,51 @@ async function main() {
     tokenValue = created.accessKey;
   }
 
+  // ---- 1b. Studio Service 专用 API Token（custom，最小权限，不含 Dream delete）----
+  const studioTokenName = 'studio-service-write';
+  const studioPermissions = [
+    'api::dream.dream.find',
+    'api::dream.dream.findOne',
+    'api::dream.dream.create',
+    'api::dream.dream.update',
+    'api::story.story.find',
+    'api::story.story.findOne',
+    'api::story.story.create',
+    'api::story.story.delete',
+    'api::agent-run.agent-run.find',
+    'api::agent-run.agent-run.findOne',
+    'api::agent-run.agent-run.create',
+  ];
+  const existingStudio = await tokenService.getByName(studioTokenName);
+
+  let studioTokenValue = null;
+  if (existingStudio) {
+    console.log(`\nAPI Token「${studioTokenName}」已存在（无法再次显示明文）。`);
+    console.log('如需新明文，请先在 Admin 后台删除后重跑本脚本。');
+  } else {
+    const createdStudio = await tokenService.create({
+      name: studioTokenName,
+      description: 'Studio Service 写入用（custom：无 Dream delete）',
+      type: 'custom',
+      lifespan: null,
+      permissions: studioPermissions,
+    });
+    studioTokenValue = createdStudio.accessKey;
+  }
+
   // ---- 2. Public 角色只读权限 ----
   const publicRole = await app
     .query('plugin::users-permissions.role')
     .findOne({ where: { type: 'public' } });
 
   if (publicRole) {
-    const actions = ['api::dream.dream.find', 'api::dream.dream.findOne'];
+    // 不为 agent-run 添加任何 Public 权限
+    const actions = [
+      'api::dream.dream.find',
+      'api::dream.dream.findOne',
+      'api::story.story.find',
+      'api::story.story.findOne',
+    ];
     for (const action of actions) {
       const existingPerm = await app
         .query('plugin::users-permissions.permission')
@@ -63,7 +101,14 @@ async function main() {
     console.log('\n==================== API TOKEN（请复制保存）====================');
     console.log(tokenValue);
     console.log('================================================================');
-    console.log('把它填入 mcp-server/.env 的 STRAPI_TOKEN。\n');
+    console.log('把它填入 mcp-server/.env 的 Strapi Token 变量。\n');
+  }
+
+  if (studioTokenValue) {
+    console.log('\n============== STUDIO API TOKEN（请复制保存）==============');
+    console.log(studioTokenValue);
+    console.log('===========================================================');
+    console.log('把它填入 studio-service/.env 的 Strapi Token 变量。\n');
   }
 
   await app.destroy();

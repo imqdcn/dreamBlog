@@ -1,0 +1,68 @@
+[
+  {
+    "id": "trend-01-fall-count",
+    "category": "trend",
+    "question": "2025 年上半年我做了多少个坠落主题的梦？",
+    "expectedTools": ["search_dreams"],
+    "expectedFacts": ["坠落", "10"],
+    "expectedTermination": "answered",
+    "script": [
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "tag": "坠落", "limit": 20 } }] },
+      { "type": "final", "content": "2025 年上半年共有 10 个坠落主题的梦，主要集中在 3 月到 6 月，多数伴随恐惧或焦虑情绪。" }
+    ]
+  },
+  {
+    "id": "trend-02-lowest-mood-month",
+    "category": "trend",
+    "question": "2025 年 1 月到 6 月，哪个月我的平均情绪分数最低？",
+    "expectedTools": ["emotion_trend"],
+    "expectedFacts": ["4月"],
+    "expectedTermination": "answered",
+    "script": [
+      {
+        "type": "tool_calls",
+        "calls": [
+          { "name": "emotion_trend", "arguments": { "dateFrom": "2025-01-01", "dateTo": "2025-06-30", "granularity": "month" } }
+        ]
+      },
+      { "type": "final", "content": "4月的平均情绪分数最低，约为 -0.14，当月有 7 个梦。" }
+    ]
+  },
+  {
+    "id": "trend-03-top-keyword",
+    "category": "trend",
+    "question": "2025 年上半年我的梦里出现次数最多的关键词是什么？出现了几次？",
+    "expectedTools": ["keyword_stats"],
+    "expectedFacts": ["坠落", "10"],
+    "expectedTermination": "answered",
+    "script": [
+      {
+        "type": "tool_calls",
+        "calls": [
+          { "name": "keyword_stats", "arguments": { "dateFrom": "2025-01-01", "dateTo": "2025-06-30", "limit": 5 } }
+        ]
+      },
+      { "type": "final", "content": "出现次数最多的关键词是「坠落」，共出现 10 次。" }
+    ]
+  },
+  {
+    "id": "trend-04-monthly-counts-max-steps",
+    "category": "trend",
+    "question": "请逐月统计 2025 年 1 到 6 月每个月各有多少个梦，并告诉我哪个月最多。",
+    "expectedTools": ["search_dreams", "emotion_trend"],
+    "expectedFacts": ["5月", "8"],
+    "expectedTermination": "max_steps",
+    "note": "离线脚本假设 maxSteps=8：8 步工具调用后 Gate 触发 max_steps，随后的总结调用消耗最后一个 final 步骤。",
+    "script": [
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "dateFrom": "2025-01-01", "dateTo": "2025-01-31", "limit": 20 } }] },
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "dateFrom": "2025-02-01", "dateTo": "2025-02-28", "limit": 20 } }] },
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "dateFrom": "2025-03-01", "dateTo": "2025-03-31", "limit": 20 } }] },
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "dateFrom": "2025-04-01", "dateTo": "2025-04-30", "limit": 20 } }] },
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "dateFrom": "2025-05-01", "dateTo": "2025-05-31", "limit": 20 } }] },
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "dateFrom": "2025-06-01", "dateTo": "2025-06-30", "limit": 20 } }] },
+      { "type": "tool_calls", "calls": [{ "name": "emotion_trend", "arguments": { "dateFrom": "2025-01-01", "dateTo": "2025-06-30", "granularity": "month" } }] },
+      { "type": "tool_calls", "calls": [{ "name": "keyword_stats", "arguments": { "dateFrom": "2025-01-01", "dateTo": "2025-06-30", "limit": 10 } }] },
+      { "type": "final", "content": "已达到步数上限，以下为目前已得到的结果：5月的梦最多，共 8 个。" }
+    ]
+  }
+]

@@ -5,6 +5,8 @@ on:
     branches: [main, master]
     paths:
       - 'frontend/**'
+      - 'backend/**'
+      - 'scripts/**'
       - '.github/workflows/deploy-frontend.yml'
   workflow_dispatch:
 
@@ -36,10 +38,16 @@ jobs:
 
       - name: Generate static site
         env:
-          # 在仓库 Settings → Variables 配置这两个变量
+          # 在仓库 Settings → Variables 配置这些变量（均为公开地址，不是 secret）
           NUXT_PUBLIC_STRAPI_URL: ${{ vars.NUXT_PUBLIC_STRAPI_URL }}
+          NUXT_PUBLIC_STUDIO_URL: ${{ vars.NUXT_PUBLIC_STUDIO_URL }}
           NUXT_APP_BASE_URL: ${{ vars.NUXT_APP_BASE_URL }}
         run: npm run generate
+      - name: Run tests
+        run: npm test
+      - name: Check secret boundary
+        working-directory: .
+        run: node scripts/check-secret-boundary.mjs
 
       - uses: actions/upload-pages-artifact@v3
         with:

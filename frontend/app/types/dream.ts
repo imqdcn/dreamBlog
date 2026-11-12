@@ -23,7 +23,96 @@ export interface Dream {
   aiProcessed?: boolean;
   source?: string;
   createdAt?: string;
+  isFavorite?: boolean;
+  tags?: string[];
 }
+
+export type StoryStyle = 'gentle_fairytale' | 'mystery' | 'sci_fi' | 'poetic';
+
+export type TerminationReason =
+  | 'answered'
+  | 'max_steps'
+  | 'repeated_call'
+  | 'token_budget'
+  | 'timeout'
+  | 'tool_failure'
+  | 'llm_failure'
+  | 'cancelled';
+
+/** 梦境故事（Strapi story 扁平化） */
+export interface Story {
+  id: number;
+  documentId: string;
+  title: string;
+  content: string;
+  style: StoryStyle;
+  tags?: string[];
+  sourceDreams?: Dream[];
+  /** 创建时的来源快照，用于识别已删除的来源梦境 */
+  sourceSnapshot?: Array<{ documentId: string; title: string }>;
+  createdAt?: string;
+}
+
+/** Agent 运行列表项（不含 trace 与回答） */
+export interface AgentRunSummary {
+  documentId?: string;
+  runId?: string;
+  question: string;
+  terminationReason: TerminationReason;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  estimatedCost: number;
+  durationMs: number;
+  createdAt?: string;
+}
+
+export interface TraceLlmInfo {
+  promptTokens: number;
+  completionTokens: number;
+  durationMs: number;
+  usageEstimated: boolean;
+  aborted?: boolean;
+}
+
+export interface ToolCallTrace {
+  callId: string;
+  name: string;
+  args: unknown;
+  status: 'ok' | 'error' | 'rejected' | 'skipped';
+  errorCode?: string;
+  empty?: boolean;
+  truncated?: boolean;
+  resultBytes: number;
+  durationMs: number;
+  resultPreview?: string;
+}
+
+export interface StepTrace {
+  kind: 'step';
+  step: number;
+  startedAtMs: number;
+  llm: TraceLlmInfo;
+  toolCalls: ToolCallTrace[];
+}
+
+export interface CompressionTrace {
+  kind: 'compression';
+  atStep: number;
+  trigger: 'over_budget_before_llm_call';
+  compressedSteps: number[];
+  tokensBefore: number;
+  tokensAfter: number;
+}
+
+export interface SummaryTrace {
+  kind: 'summary';
+  reason: 'max_steps' | 'repeated_call';
+  llm: TraceLlmInfo;
+  failed?: boolean;
+}
+
+export type TraceEntry = StepTrace | CompressionTrace | SummaryTrace;
 
 /** 情绪的中文展示与配色 */
 export const EMOTION_META: Record<DreamEmotion, { label: string; color: string; emoji: string }> = {

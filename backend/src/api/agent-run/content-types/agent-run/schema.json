@@ -1,0 +1,84 @@
+{
+  "kind": "collectionType",
+  "collectionName": "agent_runs",
+  "info": {
+    "singularName": "agent-run",
+    "pluralName": "agent-runs",
+    "displayName": "Agent Run",
+    "description": "Agent 单次运行记录：问题、最终回答、终止原因、Trace 与用量"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "runId": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "运行标识"
+    },
+    "question": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500,
+      "description": "用户提出的问题"
+    },
+    "finalAnswer": {
+      "type": "text",
+      "description": "最终回答"
+    },
+    "terminationReason": {
+      "type": "enumeration",
+      "enum": [
+        "answered",
+        "max_steps",
+        "repeated_call",
+        "token_budget",
+        "timeout",
+        "tool_failure",
+        "llm_failure",
+        "cancelled"
+      ],
+      "description": "终止原因"
+    },
+    "trace": {
+      "type": "json",
+      "description": "TraceEntry 数组"
+    },
+    "promptTokens": {
+      "type": "integer",
+      "min": 0
+    },
+    "completionTokens": {
+      "type": "integer",
+      "min": 0
+    },
+    "estimatedCost": {
+      "type": "float",
+      "min": 0,
+      "description": "估算费用；用 float 而非 decimal（decimal 仅 2 位小数）"
+    },
+    "durationMs": {
+      "type": "integer",
+      "min": 0
+    },
+    "stepCount": {
+      "type": "integer",
+      "min": 0
+    },
+    "model": {
+      "type": "string"
+    },
+    "redacted": {
+      "type": "boolean",
+      "default": false,
+      "description": "最终回答是否因含密钥取值被替换"
+    },
+    "usageEstimated": {
+      "type": "boolean",
+      "default": false,
+      "description": "用量是否为估算值"
+    }
+  }
+}

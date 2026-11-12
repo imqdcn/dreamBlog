@@ -1,4 +1,4 @@
-# 自托管编排：Postgres + Strapi + MCP Server
+# 自托管编排：Postgres + Strapi + MCP Server + Studio Service
 # 用法：复制 .env.example 为 .env 并填值，然后 docker compose up -d --build
 services:
   postgres:
@@ -41,6 +41,16 @@ services:
       - uploads:/app/public/uploads
     ports:
       - '1337:1337'
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://localhost:1337/_health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
 
   mcp-server:
     build: ./mcp-server
@@ -56,6 +66,30 @@ services:
       LLM_API_KEY: ${LLM_API_KEY}
       LLM_MODEL: ${LLM_MODEL}
       LOG_LEVEL: ${LOG_LEVEL:-info}
+
+  studio-service:
+    build: ./studio-service
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      STUDIO_PORT: 8787
+      STUDIO_STRAPI_URL: http://backend:1337
+      STUDIO_STRAPI_TOKEN: ${STUDIO_STRAPI_TOKEN}
+      STUDIO_LLM_BASE_URL: ${STUDIO_LLM_BASE_URL:-${LLM_BASE_URL:-https://api.openai.com/v1}}
+      STUDIO_LLM_API_KEY: ${STUDIO_LLM_API_KEY:-${LLM_API_KEY:-}}
+      STUDIO_LLM_MODEL: ${STUDIO_LLM_MODEL:-${LLM_MODEL:-gpt-4o-mini}}
+      STUDIO_LLM_PRICE_INPUT_PER_M: ${STUDIO_LLM_PRICE_INPUT_PER_M:-0}
+      STUDIO_LLM_PRICE_OUTPUT_PER_M: ${STUDIO_LLM_PRICE_OUTPUT_PER_M:-0}
+      STUDIO_OWNER_PASSPHRASE: ${STUDIO_OWNER_PASSPHRASE}
+      STUDIO_SESSION_SECRET: ${STUDIO_SESSION_SECRET}
+      STUDIO_TRUST_PROXY: ${STUDIO_TRUST_PROXY:-false}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      TZ: ${TZ:-Asia/Shanghai}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - '8787:8787'
 
 volumes:
   pgdata:

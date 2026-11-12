@@ -1,0 +1,62 @@
+[
+  {
+    "id": "tool-error-01-search-down",
+    "category": "tool_error",
+    "question": "搜索一下我关于水的梦。",
+    "expectedTools": ["search_dreams"],
+    "toolFaults": [{ "tool": "search_dreams", "fault": "backend_unavailable" }],
+    "expectedTermination": "tool_failure",
+    "note": "离线：三次参数不同的调用连续失败，第 3 次失败触发 tool_failure（固定文案说明失败工具与类型）。",
+    "script": [
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "query": "水" } }] },
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "query": "海" } }] },
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "query": "雨" } }] },
+      { "type": "final", "content": "（不应到达：工具连续失败已终止）" }
+    ]
+  },
+  {
+    "id": "tool-error-02-trend-timeout",
+    "category": "tool_error",
+    "question": "我最近几个月的情绪走势怎么样？",
+    "expectedTools": ["emotion_trend"],
+    "expectedFacts": ["无法"],
+    "toolFaults": [{ "tool": "emotion_trend", "fault": "timeout" }],
+    "expectedTermination": "answered",
+    "script": [
+      {
+        "type": "tool_calls",
+        "calls": [
+          { "name": "emotion_trend", "arguments": { "dateFrom": "2025-01-01", "dateTo": "2025-06-30", "granularity": "month" } }
+        ]
+      },
+      { "type": "final", "content": "情绪趋势工具暂时超时，我无法获取这段时间的情绪数据，请稍后再试。" }
+    ]
+  },
+  {
+    "id": "tool-error-03-dream-not-found",
+    "category": "tool_error",
+    "question": "读取 fx-dream-02 的原文。",
+    "expectedTools": ["get_dream"],
+    "expectedFacts": ["未找到"],
+    "toolFaults": [{ "tool": "get_dream", "fault": "not_found" }],
+    "expectedTermination": "answered",
+    "script": [
+      { "type": "tool_calls", "calls": [{ "name": "get_dream", "arguments": { "documentId": "fx-dream-02" } }] },
+      { "type": "final", "content": "未找到这条梦境，可能已被删除，我无法读取它的原文。" }
+    ]
+  },
+  {
+    "id": "tool-error-04-similar-down-token-budget",
+    "category": "tool_error",
+    "question": "找出和 fx-dream-01 相似的梦。",
+    "expectedTools": ["find_similar_dreams"],
+    "toolFaults": [{ "tool": "find_similar_dreams", "fault": "backend_unavailable" }],
+    "expectedTermination": "token_budget",
+    "note": "离线：所有响应 usage 为超大值，第 1 步之后 Gate 因累计 token ≥ 60000 以 token_budget 终止。",
+    "script": [
+      { "type": "tool_calls", "calls": [{ "name": "find_similar_dreams", "arguments": { "documentId": "fx-dream-01" } }] },
+      { "type": "final", "content": "（不应到达：token 预算已耗尽）" }
+    ],
+    "faults": { "hugeUsage": { "promptTokens": 10000000, "completionTokens": 10000000 } }
+  }
+]

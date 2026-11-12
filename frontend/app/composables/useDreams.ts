@@ -16,7 +16,7 @@ interface StrapiItemResponse<T> {
  * Strapi v5 默认把字段平铺在 data 元素上（非 v4 的 attributes 包裹），
  * 这里做一次规范化，保证前端拿到扁平的 Dream。
  */
-function normalize(item: any): Dream {
+export function normalize(item: any): Dream {
   // 兼容 v4（attributes 包裹）与 v5（平铺）两种结构
   const src = item.attributes ? { id: item.id, documentId: item.documentId, ...item.attributes } : item;
   return {
@@ -33,6 +33,8 @@ function normalize(item: any): Dream {
     aiProcessed: src.aiProcessed ?? undefined,
     source: src.source ?? undefined,
     createdAt: src.createdAt ?? undefined,
+    isFavorite: src.isFavorite === true,
+    tags: Array.isArray(src.tags) ? src.tags : [],
   };
 }
 

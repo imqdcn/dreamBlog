@@ -67,6 +67,15 @@
       "type": "string",
       "default": "xiaozhi",
       "description": "记录来源，默认来自小智语音"
+    },
+    "isFavorite": {
+      "type": "boolean",
+      "default": false,
+      "description": "是否珍藏"
+    },
+    "tags": {
+      "type": "json",
+      "description": "用户自定义标签数组（最多 10 个，每个 1-20 字符）"
     }
   }
 }

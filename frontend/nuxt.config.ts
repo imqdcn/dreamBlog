@@ -23,6 +23,8 @@ export default defineNuxtConfig({
     public: {
       // Strapi 公开读取地址，部署时用 NUXT_PUBLIC_STRAPI_URL 覆盖
       strapiUrl: process.env.NUXT_PUBLIC_STRAPI_URL || 'http://localhost:1337',
+      // Studio_Service 地址（仅地址，不含任何密钥），用 NUXT_PUBLIC_STUDIO_URL 覆盖
+      studioUrl: process.env.NUXT_PUBLIC_STUDIO_URL || 'http://localhost:8787',
     },
   },
 

@@ -1,0 +1,41 @@
+[
+  {
+    "id": "no-answer-01-elephant",
+    "category": "no_answer",
+    "question": "我有没有梦见过大象？",
+    "expectedTools": ["search_dreams"],
+    "expectedFacts": ["没有"],
+    "expectedTermination": "answered",
+    "script": [
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "query": "大象" } }] },
+      { "type": "final", "content": "在你的梦境记录里没有找到与大象相关的梦。" }
+    ]
+  },
+  {
+    "id": "no-answer-02-year-2024-repeated",
+    "category": "no_answer",
+    "question": "我 2024 年梦见过什么？",
+    "expectedTools": ["search_dreams"],
+    "expectedFacts": ["没有"],
+    "expectedTermination": "repeated_call",
+    "note": "离线脚本：同一调用第 3 次发起时整步被拒绝并以 repeated_call 终止，随后的总结调用消耗 final 步骤。",
+    "script": [
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "dateFrom": "2024-01-01", "dateTo": "2024-12-31" } }] },
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "dateFrom": "2024-01-01", "dateTo": "2024-12-31" } }] },
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "dateFrom": "2024-01-01", "dateTo": "2024-12-31" } }] },
+      { "type": "final", "content": "2024 年没有任何梦境记录（最早的记录从 2025 年开始），重复检索不会有新的结果。" }
+    ]
+  },
+  {
+    "id": "no-answer-03-volcano",
+    "category": "no_answer",
+    "question": "我梦见过火山喷发吗？",
+    "expectedTools": ["search_dreams"],
+    "expectedFacts": ["没有"],
+    "expectedTermination": "answered",
+    "script": [
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "query": "火山" } }] },
+      { "type": "final", "content": "没有找到和火山喷发有关的梦境记录。" }
+    ]
+  }
+]

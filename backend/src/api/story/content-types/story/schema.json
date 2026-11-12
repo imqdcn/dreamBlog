@@ -1,0 +1,54 @@
+{
+  "kind": "collectionType",
+  "collectionName": "stories",
+  "info": {
+    "singularName": "story",
+    "pluralName": "stories",
+    "displayName": "Story",
+    "description": "由梦境生成的故事"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "故事标题"
+    },
+    "content": {
+      "type": "text",
+      "required": true,
+      "minLength": 1,
+      "maxLength": 20000,
+      "description": "故事正文"
+    },
+    "style": {
+      "type": "enumeration",
+      "enum": [
+        "gentle_fairytale",
+        "mystery",
+        "sci_fi",
+        "poetic"
+      ],
+      "description": "故事风格：温柔童话/悬疑/科幻/诗意"
+    },
+    "tags": {
+      "type": "json",
+      "description": "标签数组"
+    },
+    "sourceDreams": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::dream.dream",
+      "description": "来源梦境"
+    },
+    "sourceSnapshot": {
+      "type": "json",
+      "description": "生成时来源梦境的快照"
+    }
+  }
+}

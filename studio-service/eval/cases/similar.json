@@ -1,0 +1,41 @@
+[
+  {
+    "id": "similar-01-deep-well",
+    "category": "similar",
+    "question": "有没有和「坠入深井」那个梦相似的梦？",
+    "expectedTools": ["search_dreams", "find_similar_dreams"],
+    "expectedFacts": ["再次坠落"],
+    "expectedTermination": "answered",
+    "script": [
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "query": "坠入深井", "limit": 3 } }] },
+      { "type": "tool_calls", "calls": [{ "name": "find_similar_dreams", "arguments": { "documentId": "fx-dream-01", "limit": 3 } }] },
+      { "type": "final", "content": "和「坠入深井」最相似的是「再次坠落」，两者都有坠落和楼梯，情绪都是恐惧；其次是「脚下的地板消失」。" }
+    ]
+  },
+  {
+    "id": "similar-02-lighthouse",
+    "category": "similar",
+    "question": "找出和「海边的灯塔」相似的梦。",
+    "expectedTools": ["search_dreams", "find_similar_dreams"],
+    "expectedFacts": ["海底的城市"],
+    "expectedTermination": "answered",
+    "script": [
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "query": "海边的灯塔", "limit": 3 } }] },
+      { "type": "tool_calls", "calls": [{ "name": "find_similar_dreams", "arguments": { "documentId": "fx-dream-02", "limit": 5 } }] },
+      { "type": "final", "content": "与「海边的灯塔」相似的梦包括「海底的城市」，二者都带有海边标签，氛围明亮平静。" }
+    ]
+  },
+  {
+    "id": "similar-03-cliff-llm-failure",
+    "category": "similar",
+    "question": "找出和「悬崖边的台阶」相似的梦，并说明相似在哪里。",
+    "expectedTools": ["search_dreams", "find_similar_dreams"],
+    "expectedTermination": "llm_failure",
+    "note": "离线脚本：两步工具调用后 LLM 永久性故障，终止原因为 llm_failure（固定文案不含事实，故不设 expectedFacts）。",
+    "script": [
+      { "type": "tool_calls", "calls": [{ "name": "search_dreams", "arguments": { "query": "悬崖边的台阶", "limit": 3 } }] },
+      { "type": "tool_calls", "calls": [{ "name": "find_similar_dreams", "arguments": { "documentId": "fx-dream-08", "limit": 5 } }] },
+      { "type": "error", "kind": "permanent", "message": "scripted permanent LLM failure" }
+    ]
+  }
+]

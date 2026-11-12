@@ -443,6 +443,95 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiAgentRunAgentRun extends Struct.CollectionTypeSchema {
+  collectionName: 'agent_runs';
+  info: {
+    description: 'Agent \u5355\u6B21\u8FD0\u884C\u8BB0\u5F55\uFF1A\u95EE\u9898\u3001\u6700\u7EC8\u56DE\u7B54\u3001\u7EC8\u6B62\u539F\u56E0\u3001Trace \u4E0E\u7528\u91CF';
+    displayName: 'Agent Run';
+    pluralName: 'agent-runs';
+    singularName: 'agent-run';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    completionTokens: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    durationMs: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    estimatedCost: Schema.Attribute.Float &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    finalAnswer: Schema.Attribute.Text;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::agent-run.agent-run'
+    > &
+      Schema.Attribute.Private;
+    model: Schema.Attribute.String;
+    promptTokens: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    publishedAt: Schema.Attribute.DateTime;
+    question: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    redacted: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    runId: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
+    stepCount: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    terminationReason: Schema.Attribute.Enumeration<
+      [
+        'answered',
+        'max_steps',
+        'repeated_call',
+        'token_budget',
+        'timeout',
+        'tool_failure',
+        'llm_failure',
+        'cancelled',
+      ]
+    >;
+    trace: Schema.Attribute.JSON;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    usageEstimated: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
+  };
+}
+
 export interface ApiDreamDream extends Struct.CollectionTypeSchema {
   collectionName: 'dreams';
   info: {
@@ -479,6 +568,7 @@ export interface ApiDreamDream extends Struct.CollectionTypeSchema {
         },
         number
       >;
+    isFavorite: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     keywords: Schema.Attribute.JSON;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::dream.dream'> &
@@ -487,7 +577,51 @@ export interface ApiDreamDream extends Struct.CollectionTypeSchema {
     rawContent: Schema.Attribute.Text & Schema.Attribute.Required;
     source: Schema.Attribute.String & Schema.Attribute.DefaultTo<'xiaozhi'>;
     summary: Schema.Attribute.Text;
+    tags: Schema.Attribute.JSON;
     title: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiStoryStory extends Struct.CollectionTypeSchema {
+  collectionName: 'stories';
+  info: {
+    description: '\u7531\u68A6\u5883\u751F\u6210\u7684\u6545\u4E8B';
+    displayName: 'Story';
+    pluralName: 'stories';
+    singularName: 'story';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    content: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 20000;
+        minLength: 1;
+      }>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::story.story'> &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    sourceDreams: Schema.Attribute.Relation<'manyToMany', 'api::dream.dream'>;
+    sourceSnapshot: Schema.Attribute.JSON;
+    style: Schema.Attribute.Enumeration<
+      ['gentle_fairytale', 'mystery', 'sci_fi', 'poetic']
+    >;
+    tags: Schema.Attribute.JSON;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+        minLength: 1;
+      }>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1005,7 +1139,9 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::agent-run.agent-run': ApiAgentRunAgentRun;
       'api::dream.dream': ApiDreamDream;
+      'api::story.story': ApiStoryStory;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;
